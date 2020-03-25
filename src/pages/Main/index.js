@@ -1,29 +1,47 @@
-import React, { useState } from 'react';
+/* eslint-disable no-shadow */
+import React, { useState, useEffect } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import { Container, Form, SubmitButton } from './styles';
+import ContainerComponent from '../../components/Container';
+import { Form, SubmitButton, List } from './styles';
 
 export default function Main() {
   const [repo, setRepo] = useState('');
   const [repositories, setRepositories] = useState([]);
   const [loading, setloading] = useState(false);
 
+  useEffect(() => {
+    function loadList() {
+      const list = localStorage.getItem('data');
+      if (list) {
+        setRepositories(JSON.parse(list));
+      }
+    }
+    loadList();
+  }, []);
+
   async function handleSubmit(event) {
     event.preventDefault();
     setloading(true);
     const response = await api.get(`/${repo}`);
 
-    const { full_name: name } = response.data;
+    const { full_name: name, html_url: url } = response.data;
+    const data = {
+      name,
+      url,
+    };
+    localStorage.setItem('data', JSON.stringify([...repositories, data]));
 
-    setRepositories([...repositories, name]);
+    setRepositories([...repositories, data]);
     setloading(false);
     setRepo('');
   }
 
   return (
-    <Container>
+    <ContainerComponent>
       <h1>
         <FaGithubAlt />
         Repositórios
@@ -45,6 +63,16 @@ export default function Main() {
           )}
         </SubmitButton>
       </Form>
-    </Container>
+      <List>
+        {repositories.map((repository) => (
+          <li key={repository.name}>
+            <span>{repository.name}</span>
+            <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+              Detalhes
+            </Link>
+          </li>
+        ))}
+      </List>
+    </ContainerComponent>
   );
 }

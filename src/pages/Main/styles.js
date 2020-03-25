@@ -8,25 +8,6 @@ const rotate = keyframes`
   }
 `;
 
-export const Container = styled.div`
-  max-width: 700px;
-  background: #fff;
-  margin: 80px auto;
-  padding: 30px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-
-  h1 {
-    display: flex;
-    align-items: center;
-    font-size: 20px;
-    padding-bottom: 15px;
-
-    svg {
-      margin-right: 10px;
-    }
-  }
-`;
 export const Form = styled.form`
   display: flex;
   flex-direction: row;
@@ -65,4 +46,30 @@ export const SubmitButton = styled.button.attrs(({ loading }) => ({
         animation: ${rotate} 1s linear infinite;
       }
     `}
+`;
+
+export const List = styled.ul`
+  list-style: none;
+  margin-top: 30px;
+
+  li {
+    padding: 15px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    & + li {
+      border-top: 1px solid #eee;
+    }
+  }
+
+  a {
+    color: #7159c1;
+    text-decoration: none;
+
+    &:hover {
+      color: red;
+    }
+  }
 `;
