@@ -1,6 +1,11 @@
 import { createGlobalStyle } from 'styled-components';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default createGlobalStyle`
+  .flip {
+    border-radius: 5px;
+  }
+
   * {
     margin: 0;
     padding: 0;

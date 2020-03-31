@@ -1,6 +1,7 @@
 /* eslint-disable no-shadow */
 import React, { useState, useEffect } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
@@ -12,6 +13,7 @@ export default function Main() {
   const [repo, setRepo] = useState('');
   const [repositories, setRepositories] = useState([]);
   const [loading, setloading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     function loadList() {
@@ -26,18 +28,38 @@ export default function Main() {
   async function handleSubmit(event) {
     event.preventDefault();
     setloading(true);
-    const response = await api.get(`/${repo}`);
+    try {
+      if (repo === '') throw 'Informe um repositório válido';
 
-    const { full_name: name, html_url: url } = response.data;
-    const data = {
-      name,
-      url,
-    };
-    localStorage.setItem('data', JSON.stringify([...repositories, data]));
+      const response = await api.get(`/${repo}`);
 
-    setRepositories([...repositories, data]);
-    setloading(false);
-    setRepo('');
+      const repoExists = repositories.find(
+        (repository) => repository.name === repo
+      );
+
+      if (repoExists) throw 'Repositório já está na lista!';
+
+      const { full_name: name } = response.data;
+      const data = {
+        name,
+      };
+      localStorage.setItem('data', JSON.stringify([...repositories, data]));
+
+      setRepositories([...repositories, data]);
+      setloading(false);
+      setRepo('');
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 404) {
+          setError(true);
+          toast.error('Repositório não encontrado');
+        }
+      }
+      setError(true);
+      toast.error(err);
+      setloading(false);
+      setRepo('');
+    }
   }
 
   return (
@@ -47,7 +69,11 @@ export default function Main() {
         Repositórios
       </h1>
 
-      <Form onSubmit={handleSubmit}>
+      <Form
+        onSubmit={handleSubmit}
+        error={error}
+        onClick={() => setError(false)}
+      >
         <input
           type="text"
           placeholder="adicionar repositórios"
@@ -55,7 +81,7 @@ export default function Main() {
           onChange={(event) => setRepo(event.target.value)}
         />
 
-        <SubmitButton loading={loading}>
+        <SubmitButton loading={loading} error={error}>
           {loading ? (
             <FaSpinner size={15} color="#fff" />
           ) : (

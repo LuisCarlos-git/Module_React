@@ -13,8 +13,8 @@ export const Form = styled.form`
   flex-direction: row;
 
   input {
+    border: ${({ error }) => (error ? '1px solid #FD5555' : '1px solid #eee')};
     flex: 1;
-    border: 1px solid #eee;
     padding: 10px 15px;
     border-radius: 4px;
     font-size: 16px;
